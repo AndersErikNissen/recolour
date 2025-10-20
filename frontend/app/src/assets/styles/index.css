@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'SourceSans3';
+  src: url("../fonts/SourceSans3.ttf") format("truetype"), url("../fonts/SourceSans3.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: 'SpaceMono'; 
+  font-weight: 400;
+  src: url("../fonts/SpaceMono.ttf") format("truetype"), url("../fonts/SpaceMono.woff2") format("woff2");
+}
+
+@theme {
+  --color-brand: #2216FF;
+  --font-source-sans: 'SourceSans3', Arial, Helvetica, sans-serif;
+  --font-space-mono: 'SpaceMono', monospace;
+}
