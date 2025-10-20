@@ -12,7 +12,24 @@
 }
 
 @theme {
-  --color-brand: #2216FF;
-  --font-source-sans: 'SourceSans3', Arial, Helvetica, sans-serif;
-  --font-space-mono: 'SpaceMono', monospace;
+  --color-brand-50: #faf6ec;
+  --color-brand-100: #f3e9ce;
+  --color-brand-200: #e9d39f;
+  --color-brand-300: #dcb468;
+  --color-brand-400: #d0983d;
+  --color-brand-500: #c18431;
+  --color-brand-600: #a66628;
+  --color-brand-700: #854b23;
+  --color-brand-800: #6f3e24;
+  --color-brand-900: #603523;
+  --color-brand-950: #371a11;
+
+  --color-status-pending: #CE73EF;
+  --color-status-send: #3287DC;
+  --color-status-inprogress: #E6C000;
+  --color-status-complete: #1CC050;
+  --color-status-rejected: #EA1776;
+
+  --font-sans: 'SourceSans3', Arial, Helvetica, sans-serif;
+  --font-mono: 'SpaceMono', monospace;
 }

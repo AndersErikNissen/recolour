@@ -3,17 +3,11 @@ import { defineStore } from 'pinia';
 export const useAlertsStore = defineStore('users', {
   state: () => ({ 
     activeUser: 'Operator',
+    availableUsers: ['Operator', 'Manager'],
   }),
-  getters: {
-    getUser: (state) => state.activeUser,
-  },
   actions: {
-    swapUser() {
-      if (this.activeUser === 'Operator') {
-        this.activeUser = 'Moderator';
-      } else {
-        this.activeUser = 'Operator';
-      }
+    swapTo(newUser) {
+      this.activeUser = this.availableUsers.find((userName) => userName === newUser) || 'Operator';
     },
   }
 })
