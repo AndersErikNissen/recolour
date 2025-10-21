@@ -13,15 +13,17 @@ onMounted(() => {
   }
 });
 
-const approvedPhotos = computed(() => ticketStore.tickets.map((ticket) => {
-  let images = [];
+const approvedPhotos = computed(() => {
+  const photos = [];
 
-  if (ticket.status === 'completed') {
-    images = ticket.images.recolour;
-  }
+  ticketStore.completedTickets.forEach((ticket) => {
+    ticket?.images?.recolours.forEach((image) => {
+      photos.push(image);
+    });
+  });
 
-  return images;
-}).flat());
+  return photos;
+});
 </script>
 
 <template>
@@ -33,15 +35,15 @@ const approvedPhotos = computed(() => ticketStore.tickets.map((ticket) => {
       </p>
     </div>
 
-    <ul class="rounded-xl grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 font-mono gap-1">
-      <li v-for="photo in approvedPhotos" :key="photo.name" class="rounded-xl bg-brand-100">
-        <img class="rounded-t-xl w-full h-auto" :src="imageUrl(photo.path)" :alt="photo.alt" />
+    <ul class="rounded-xl grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 font-mono gap-1" v-if="approvedPhotos.length > 0">
+      <li v-for="photo in approvedPhotos" :key="photo.path" class="rounded-xl bg-brand-100">
+        <img class="rounded-t-xl w-full h-auto" :src="imageUrl(photo.path)" />
         <span class="block text-xs p-2"><span class="text-brand-400">From ticket:</span> #{{ photo.ticket_id }}</span>
       </li>
-
-      <li v-if="approvedPhotos.length === 0" class="col-span-full bg-brand-600 text-brand-50 rounded-2xl">
-        <p class="py-10 px-5 text-xs text-center">There are currently no approved photos, try again later!</p>
-      </li>
     </ul>
+
+    <div v-else class="col-span-full bg-brand-600 text-brand-50 rounded-2xl">
+      <p class="py-10 px-5 text-xs text-center">There are currently no approved photos, try again later!</p>
+    </div>
   </div>
 </template>

@@ -26,7 +26,10 @@ export const useTicketStore = defineStore('tickets', {
     async addTicket(ticket) {
       try {
         const { data } = await api.post('/tickets', ticket);
-        this.tickets.push(data);
+
+        this.tickets = [...this.tickets, data];
+
+        return data;
       } catch (err) {
         this.error = err.response?.data?.message || err.message;
       }
@@ -93,6 +96,11 @@ export const useTicketStore = defineStore('tickets', {
     latestTickets: (state) => {
       const length = state.tickets.length;
       return state.tickets.slice(Math.max(length - 3, 0));
+    },
+    completedTickets: (state) => {
+      return state.tickets.filter((ticket) => {
+        return ticket.status === 'completed';
+      });
     },
   },
 });

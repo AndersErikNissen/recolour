@@ -44,11 +44,11 @@ const links = [
         </ul>
       </navigation>
 
-      <div class="mt-10 grid">
+      <!-- <div class="mt-10 grid">
         <FilledButton tag="RouterLink" to="/login">
           <span>Login</span>
         </FilledButton>
-      </div>
+      </div> -->
     </div>
   </header>
 </template>

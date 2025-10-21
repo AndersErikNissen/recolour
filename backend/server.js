@@ -4,16 +4,37 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors()); 
 app.use(express.json());
+app.use('/api/public', express.static(path.join(__dirname, 'public')));
 
-app.use('/public', express.static(path.join(__dirname, 'public')));
+const createTicket = (ticket, images, partners) => {
+  const ticketImages = images.filter((image) => {
+    return image.ticket_id === ticket.id;
+  });
+  
+  const groupedImages = {
+    tickets: ticketImages.filter((image) => image.type === 'ticket'),
+    attachments: ticketImages.filter((image) => image.type === 'attachment'),
+    recolours: ticketImages.filter((image) => image.type === 'recolour'),
+  };
 
-app.get('/partners', (req, res) => {
+  const partner = partners.find((partner) => {
+    return partner.name === ticket.partner;
+  });
+
+  return {
+    ...ticket,
+    partner_info: partner || null,
+    images: groupedImages
+  };
+}
+
+app.get('/api/partners', (req, res) => {
   const partners = db.prepare(`
     SELECT * 
     FROM partners  
@@ -22,13 +43,25 @@ app.get('/partners', (req, res) => {
   return res.json(partners);
 });
 
-app.get('/tickets', (req, res) => {
+app.get('/api/available-photos', (req, res) => {
+  const attachments = db.prepare('SELECT * FROM available_photos WHERE type = ?').all('attachment');
+  const recolours = db.prepare('SELECT * FROM available_photos WHERE type = ?').all('recolour');
+  const tickets = db.prepare('SELECT * FROM available_photos WHERE type = ?').all('ticket');
+
+  res.json({
+    attachments,
+    recolours,
+    tickets
+  });
+});
+
+app.get('/api/tickets', (req, res) => {
   const tickets = db.prepare(`
     SELECT * 
     FROM tickets
   `).all();
 
-  const allImages = db.prepare(`
+  const images = db.prepare(`
     SELECT * 
     FROM ticket_images
   `).all();
@@ -38,39 +71,12 @@ app.get('/tickets', (req, res) => {
     FROM partners  
   `).all();
 
-  const response = tickets.map((ticket) => {
-    const ticketImages = allImages.filter((image) => {
-      return image.ticket_id === ticket.id;
-    });
-
-
-    const groupedImages = {
-      original: ticketImages.filter((image) => {
-        return image.type === 'original';
-      }),
-      attachment: ticketImages.filter((image) => {
-        return image.type === 'attachment';
-      }),
-      recolour: ticketImages.filter((image) => {
-        return image.type === 'recolour';
-      }),
-    };
-
-    const partner = partners.find((partner) => {
-      return partner.name === ticket.partner;
-    });
-
-    return {
-      ...ticket,
-      partner_info: partner || null,
-      images: groupedImages
-    };
-  });
+  const response = tickets.map((ticket) => createTicket(ticket, images, partners));
 
   res.json(response);
 });
 
-app.get('/tickets/:id', (req, res) => {
+app.get('/api/tickets/:id', (req, res) => {
   const { id: ticketId } = req.params;
   const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(ticketId);
 
@@ -101,8 +107,10 @@ app.get('/tickets/:id', (req, res) => {
   });
 });
 
-app.post('/tickets', (req, res) => {
-  const { style, priority, partner, description, originals, attachments, recolours, user } = req.body;
+app.post('/api/tickets', (req, res) => {
+  const { style, priority, partner, description, photos, user } = req.body;
+
+  const theUser = user || 'operator default';
 
   const insertTicket = db.prepare(`
     INSERT INTO tickets (style, priority, partner, description)
@@ -117,22 +125,37 @@ app.post('/tickets', (req, res) => {
     VALUES (?, ?, ?, ?)
   `);
 
-  originals.forEach((image) => {
-    insertImage.run(ticketId, 'original', `../public/photos/${image}`, user);
+  photos.tickets.forEach((image) => {
+    insertImage.run(ticketId, 'ticket', image.path, theUser);
   });
 
-  attachments.forEach((image) => {
-    insertImage.run(ticketId, 'attachment', `../public/photos/${image}`, user);
+  photos.attachments.forEach((image) => {
+    insertImage.run(ticketId, 'attachment', image.path, theUser);
   });
 
-  recolours.forEach((image) => {
-    insertImage.run(ticketId, 'recolour', `../public/photos/${image}`, user);
+  photos.recolours.forEach((image) => {
+    insertImage.run(ticketId, 'recolour', image.path, theUser);
   });
 
-  res.json({ message: 'Ticket created', ticketId });
+  const theNewTicket = db.prepare(`
+    SELECT * 
+    FROM tickets WHERE id = ?
+  `).get(ticketId);
+
+  const images = db.prepare(`
+    SELECT * 
+    FROM ticket_images
+  `).all();
+
+  const partners = db.prepare(`
+    SELECT * 
+    FROM partners  
+  `).all();
+
+  res.json(createTicket(theNewTicket, images, partners));
 });
 
-app.patch('/tickets/:id/send', (req, res) => {
+app.patch('/api/tickets/:id/send', (req, res) => {
   const id = req.params.id;
 
   const ticket = db.prepare(`
@@ -169,7 +192,7 @@ app.patch('/tickets/:id/send', (req, res) => {
   });
 });
 
-app.patch('/tickets/:id/status', (req, res) => {
+app.patch('/api/tickets/:id/status', (req, res) => {
   const { status } = req.body;
   const id = req.params.id;
 
@@ -186,6 +209,12 @@ app.patch('/tickets/:id/status', (req, res) => {
   `).run(status, id);
 
   res.json({ message: `Ticket status updated to ${status}, from ${oldStatus}` });
+});
+
+app.use(express.static(path.join(__dirname, '../frontend/app/dist')));
+
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/app/dist/index.html'));
 });
 
 app.listen(3000, () => {

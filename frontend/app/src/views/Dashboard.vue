@@ -24,13 +24,13 @@ const statusColours = computed(() => colourStore.statusColours);
 <template>
   <div class="grid gap-3">
     <section class="col-span-full">
-      <h1 class="font-bold text-2xl">Welcome back, [USER.NAME]!</h1>
+      <h1 class="font-bold text-2xl">Welcome to RECOLOUR!</h1>
       <p class="text-brand-800 mt-1 max-w-md">Here on your dashboard, you will be able to get a better overview over the current set of tickets.</p>
     </section>
 
     <section class="grid lg:grid-cols-2 gap-3 mt-6">
       <div v-for="topic in dashboardTopics" class="bg-brand-100 rounded-xl p-4" :key="topic">
-        <h2 class="text-xl font-bold mb-3">{{ topic }}</h2>
+        <h2 class="text-xl font-bold mb-3 text-brand-500">{{ topic }}</h2>
 
         <div v-if="topic === 'Ticket destribution'"> 
           <div class="w-full rounded-full flex h-4 overflow-hidden mb-2">

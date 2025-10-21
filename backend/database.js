@@ -29,8 +29,10 @@ db.prepare(`
 db.prepare(`
   CREATE TABLE IF NOT EXISTS available_photos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    filename TEXT,
-    label TEXT
+    type TEXT,
+    path TEXT,
+    name TEXT,
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `).run();
 

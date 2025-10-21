@@ -1,4 +1,6 @@
 import db from './database.js';
+import fs from "fs";
+import path from "path";
 
 const partnerCount = db.prepare(`
   SELECT COUNT(*) 
@@ -12,7 +14,13 @@ const ticketCount = db.prepare(`
   FROM tickets
 `).get().count;
 
-if (partnerCount === 0 && ticketCount === 0) {
+const availablePhotoCount = db.prepare(`
+  SELECT COUNT(*) 
+  AS count 
+  FROM available_photos
+`).get().count;
+
+if (partnerCount === 0 && ticketCount === 0 && availablePhotoCount === 0) {
   console.log(`🌱 Database seeding startet...`);
 
   const partners = [
@@ -64,7 +72,7 @@ if (partnerCount === 0 && ticketCount === 0) {
   ];
 
   const partnerStatement = db.prepare(`
-    INSERT OR IGNORE INTO partners (name, logo, api_endpoint) 
+    INSERT INTO partners (name, logo, api_endpoint) 
     VALUES (?, ?, ?)
   `);
 
@@ -72,6 +80,8 @@ if (partnerCount === 0 && ticketCount === 0) {
     const {name, logo, api_endpoint} = partner;
     partnerStatement.run(name, logo, api_endpoint);
   });
+
+  console.log(`🌱 Partners seeded!`);
 
   const tickets = [
     {
@@ -87,15 +97,15 @@ if (partnerCount === 0 && ticketCount === 0) {
         15377486_001+002 +007 please make pantone color: Navy Blazer-solid`,
       images: [
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377486_5078866_001.jpg",
         },
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377486_5078866_002.jpg",
         },
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377486_5078866_007.jpg",
         },
         {
@@ -104,11 +114,42 @@ if (partnerCount === 0 && ticketCount === 0) {
         },
         {
           type: "recolour",
-          path: "/public/approved_photos/RECOLOUR_15377486_5078866_001.jpg",
+          path: "/public/photos/recolours/RECOLOUR_15377486_5078866_001.jpg",
         },
         {
           type: "recolour",
-          path: "/public/approved_photos/RECOLOUR_15377486_5078866_002.jpg",
+          path: "/public/photos/recolours/RECOLOUR_15377486_5078866_002.jpg",
+        },
+      ] 
+    },
+    {
+      status: 'rejected',
+      style: "fancy",
+      priority: "medium",
+      partner: partners[7].name,
+      description: `Can you please make: 
+        
+        Please be aware to keep clipping path for all pictures (but only 1 clipping path)
+        
+        15377486_001+002 +007 please make pantone color: Night Sky,  AOP White Dots (as attached: DOTS CLOUD DANCER -but night sky, not black)
+        15377486_001+002 +007 please make pantone color: Hedge Green -solid
+        15377486_001+002 +007 please make pantone color: Navy Blazer-solid`,
+      images: [
+        {
+          type: "ticket",
+          path: "/public/photos/15377486_5078866_001.jpg",
+        },
+        {
+          type: "ticket",
+          path: "/public/photos/15377486_5078866_002.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/photos/recolours/RECOLOUR_15377486_5078866_001.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/photos/recolours/RECOLOUR_15377486_5078866_002.jpg",
         },
       ] 
     },
@@ -126,20 +167,60 @@ if (partnerCount === 0 && ticketCount === 0) {
         AOP White Dots (as attached: DOTS CLOUD DANCER -but night sky, not black)`,
       images: [
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377488_5078869_001.jpg",
         },
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377488_5078869_002.jpg",
         },
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377488_5078869_007.jpg",
         },
         {
           type: "attachment",
           path: "/public/photos/DOTS CLOUD DANCER.jpg",
+        },
+      ] 
+    },
+    {
+      status: 'completed',
+      style: "upscaled",
+      priority: "low",
+      partner: partners[1].name,
+      description: `Can you please make: 
+        
+        Please be aware to keep clipping path for all pictures (but only 1 clipping path)
+        
+        15377488_001+002 +007 please make pantone color: Hedge Green -solid
+        15377488_001+002 +007 please make pantone color: Navy Blazer-solid
+        15377488_001+002 +007 please make pantone color: Night Sky,
+        AOP White Dots (as attached: DOTS CLOUD DANCER -but night sky, not black)`,
+      images: [
+        {
+          type: "ticket",
+          path: "/public/photos/15377488_5078869_001.jpg",
+        },
+        {
+          type: "ticket",
+          path: "/public/photos/15377488_5078869_002.jpg",
+        },
+        {
+          type: "ticket",
+          path: "/public/photos/15377488_5078869_007.jpg",
+        },
+        {
+          type: "attachment",
+          path: "/public/photos/DOTS CLOUD DANCER.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/photos/recolours/RECOLOUR_15377489_5081878_001.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/photos/recolours/RECOLOUR_15377489_5081878_002.jpg",
         },
       ] 
     },
@@ -155,15 +236,15 @@ if (partnerCount === 0 && ticketCount === 0) {
         15377489_001+002 +007 please make pantone color: Fuchsia Fedora, AOP Block Libre (as attached: Block Libre)`,
       images: [
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377489_5081878_001.jpg",
         },
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377489_5081878_002.jpg",
         },
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377489_5081878_007.jpg",
         },
         {
@@ -172,11 +253,11 @@ if (partnerCount === 0 && ticketCount === 0) {
         },
         {
           type: "recolour",
-          path: "/public/approved_photos/RECOLOUR_15377489_5081878_001.jpg",
+          path: "/public/photos/recolours/RECOLOUR_15377489_5081878_001.jpg",
         },
         {
           type: "recolour",
-          path: "/public/approved_photos/RECOLOUR_15377489_5081878_002.jpg",
+          path: "/public/photos/recolours/RECOLOUR_15377489_5081878_002.jpg",
         },
       ] 
     },
@@ -192,20 +273,50 @@ if (partnerCount === 0 && ticketCount === 0) {
         15377522_001+002 +007 please make pantone color: Fuchsia Fedora, AOP Block Libre (as attached: Block Libre)`,
       images: [
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377522_5081887_001.jpg",
         },
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377522_5081887_002.jpg",
         },
         {
-          type: "original",
+          type: "ticket",
           path: "/public/photos/15377522_5081887_007.jpg",
         },
         {
           type: "attachment",
           path: "/public/photos/Block Libre.jpg",
+        },
+      ] 
+    },
+    {
+      status: 'in progress',
+      style: "streetwear",
+      priority: "medium",
+      partner: partners[5].name,
+      description: `Can you please make: 
+        
+        Please be aware to keep clipping path for all pictures (but only 1 clipping path)
+        
+        15377522_001+002 +007 please make pantone color: Granita -solid
+        15377522_001+002 +007 please make pantone color: Fuchsia Fedora, AOP Block Libre (as attached: Block Libre)`,
+      images: [
+        {
+          type: "ticket",
+          path: "/public/photos/15377522_5081887_001.jpg",
+        },
+        {
+          type: "ticket",
+          path: "/public/photos/15377522_5081887_007.jpg",
+        },
+        {
+          type: "attachment",
+          path: "/public/photos/Block Libre.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/photos/recolours/RECOLOUR_15377489_5081878_001.jpg",
         },
       ] 
     },
@@ -222,8 +333,8 @@ if (partnerCount === 0 && ticketCount === 0) {
   `);
   
   tickets.forEach((ticket, index) => {
-    const status = index === 0 ? 'completed' : 'pending';
     const { style, priority, partner, description } = ticket;
+    const status = ticket.status || 'pending';
     const result = ticketStatement.run(style, priority, partner, description, status);
     const ticketId = result.lastInsertRowid;
     const uploader = "Operator " + index;
@@ -234,5 +345,33 @@ if (partnerCount === 0 && ticketCount === 0) {
     });
   });
 
-  console.log(`🌱 Database seeded successfully!`);
+  console.log(`🌱 Tickets seeded!`);
+
+  const photoFolderNames = ['tickets', 'attachments', 'recolours'];
+  const baseDirectory = path.join(process.cwd(), 'public/photos');
+
+  for (const folder of photoFolderNames) {
+    const directoryPath = path.join(baseDirectory, folder);
+
+    if (!fs.existsSync(directoryPath)) {
+      continue;
+    }
+
+    const type = folder.substring(0, folder.length - 1);
+    const photoFiles = fs.readdirSync(directoryPath).filter(file => /\.(jpg|jpeg|png)$/i.test(file));
+
+    for (const file of photoFiles) {
+      const filePath = `/public/photos/${folder}/${file}`;
+      const fileName = file.split('.')[0];
+
+      db.prepare(`
+        INSERT INTO available_photos (type, path, name)
+        VALUES (?, ?, ?)
+      `).run(type, filePath, fileName);
+    }
+  }
+
+  console.log(`🌱 Available photos seeded!`);
+
+  console.log(`✅ Database seeded successfully!`);
 }
