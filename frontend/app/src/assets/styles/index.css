@@ -25,11 +25,35 @@
   --color-brand-950: #371a11;
 
   --color-status-pending: #CE73EF;
-  --color-status-send: #3287DC;
+  --color-status-sent: #3287DC;
   --color-status-inprogress: #E6C000;
-  --color-status-complete: #1CC050;
+  --color-status-completed: #1CC050;
   --color-status-rejected: #EA1776;
+
+  --color-priority-low: #7EFFCE;
+  --color-priority-medium: #E3CE34;
+  --color-priority-high: #FF7EBC;
 
   --font-sans: 'SourceSans3', Arial, Helvetica, sans-serif;
   --font-mono: 'SpaceMono', monospace;
+}
+
+/* Global stylings  */
+
+.c-icon-spinner__svg--1 {
+  animation: spinner--1 3s linear infinite;
+}
+
+.c-icon-spinner__svg--2 {
+  animation: spinner--2 4s linear infinite;
+}
+
+@keyframes spinner--1 {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spinner--2 {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
 }

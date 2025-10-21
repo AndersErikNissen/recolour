@@ -1,10 +1,26 @@
 import express from 'express';
 import db from './database.js';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const app = express();
 app.use(cors()); 
 app.use(express.json());
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
+app.get('/partners', (req, res) => {
+  const partners = db.prepare(`
+    SELECT * 
+    FROM partners  
+  `).all();
+
+  return res.json(partners);
+});
 
 app.get('/tickets', (req, res) => {
   const tickets = db.prepare(`
@@ -24,8 +40,9 @@ app.get('/tickets', (req, res) => {
 
   const response = tickets.map((ticket) => {
     const ticketImages = allImages.filter((image) => {
-      image.ticket_id === ticket.id;
+      return image.ticket_id === ticket.id;
     });
+
 
     const groupedImages = {
       original: ticketImages.filter((image) => {
@@ -40,7 +57,7 @@ app.get('/tickets', (req, res) => {
     };
 
     const partner = partners.find((partner) => {
-       partner.name === ticket.partner;
+      return partner.name === ticket.partner;
     });
 
     return {
@@ -84,7 +101,6 @@ app.get('/tickets/:id', (req, res) => {
   });
 });
 
-
 app.post('/tickets', (req, res) => {
   const { style, priority, partner, description, originals, attachments, recolours, user } = req.body;
 
@@ -116,18 +132,20 @@ app.post('/tickets', (req, res) => {
   res.json({ message: 'Ticket created', ticketId });
 });
 
-app.post('/tickets/:id/send', (req, res) => {
+app.patch('/tickets/:id/send', (req, res) => {
   const id = req.params.id;
+
   const ticket = db.prepare(`
     SELECT * 
     FROM tickets WHERE id = ?
   `).get(id);
+
   const partner = db.prepare(`
     SELECT * 
     FROM partners WHERE name = ?
   `).get(ticket.partner);
 
-  console.log(`Simulating sending ticket ${id} to ${partner.api_endpoint}...`);
+  console.log(`✉️ Simulating sending ticket ${id} to ${partner.api_endpoint}...`);
 
   db.prepare(`
     UPDATE tickets SET status = ? 
@@ -151,9 +169,24 @@ app.post('/tickets/:id/send', (req, res) => {
   });
 });
 
-// Backlog
-app.post('/tickets/:id/complete', (req, res) => {});
-app.post('/tickets/:id/reject', (req, res) => {});
+app.patch('/tickets/:id/status', (req, res) => {
+  const { status } = req.body;
+  const id = req.params.id;
+
+  const ticket = db.prepare(`
+    SELECT * 
+    FROM tickets WHERE id = ?
+  `).get(id);
+
+  const oldStatus = ticket.status;
+
+  db.prepare(`
+    UPDATE tickets SET status = ? 
+    WHERE id = ?  
+  `).run(status, id);
+
+  res.json({ message: `Ticket status updated to ${status}, from ${oldStatus}` });
+});
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');

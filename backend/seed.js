@@ -88,19 +88,27 @@ if (partnerCount === 0 && ticketCount === 0) {
       images: [
         {
           type: "original",
-          path: "./public/photos/15377486_5078866_001.jpg",
+          path: "/public/photos/15377486_5078866_001.jpg",
         },
         {
           type: "original",
-          path: "./public/photos/15377486_5078866_002.jpg",
+          path: "/public/photos/15377486_5078866_002.jpg",
         },
         {
           type: "original",
-          path: "./public/photos/15377486_5078866_007.jpg",
+          path: "/public/photos/15377486_5078866_007.jpg",
         },
         {
           type: "attachment",
-          path: "./public/photos/DOTS CLOUD DANCER.jpg",
+          path: "/public/photos/DOTS CLOUD DANCER.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/approved_photos/RECOLOUR_15377486_5078866_001.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/approved_photos/RECOLOUR_15377486_5078866_002.jpg",
         },
       ] 
     },
@@ -119,19 +127,19 @@ if (partnerCount === 0 && ticketCount === 0) {
       images: [
         {
           type: "original",
-          path: "./public/photos/15377488_5078869_001.jpg",
+          path: "/public/photos/15377488_5078869_001.jpg",
         },
         {
           type: "original",
-          path: "./public/photos/15377488_5078869_002.jpg",
+          path: "/public/photos/15377488_5078869_002.jpg",
         },
         {
           type: "original",
-          path: "./public/photos/15377488_5078869_007.jpg",
+          path: "/public/photos/15377488_5078869_007.jpg",
         },
         {
           type: "attachment",
-          path: "./public/photos/DOTS CLOUD DANCER.jpg",
+          path: "/public/photos/DOTS CLOUD DANCER.jpg",
         },
       ] 
     },
@@ -148,19 +156,27 @@ if (partnerCount === 0 && ticketCount === 0) {
       images: [
         {
           type: "original",
-          path: "./public/photos/15377489_5081878_001.jpg",
+          path: "/public/photos/15377489_5081878_001.jpg",
         },
         {
           type: "original",
-          path: "./public/photos/15377489_5081878_002.jpg",
+          path: "/public/photos/15377489_5081878_002.jpg",
         },
         {
           type: "original",
-          path: "./public/photos/15377489_5081878_007.jpg",
+          path: "/public/photos/15377489_5081878_007.jpg",
         },
         {
           type: "attachment",
-          path: "./public/photos/Block Libre.jpg",
+          path: "/public/photos/Block Libre.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/approved_photos/RECOLOUR_15377489_5081878_001.jpg",
+        },
+        {
+          type: "recolour",
+          path: "/public/approved_photos/RECOLOUR_15377489_5081878_002.jpg",
         },
       ] 
     },
@@ -177,27 +193,27 @@ if (partnerCount === 0 && ticketCount === 0) {
       images: [
         {
           type: "original",
-          path: "./public/photos/15377522_5081887_001.jpg",
+          path: "/public/photos/15377522_5081887_001.jpg",
         },
         {
           type: "original",
-          path: "./public/photos/15377522_5081887_002.jpg",
+          path: "/public/photos/15377522_5081887_002.jpg",
         },
         {
           type: "original",
-          path: "./public/photos/15377522_5081887_007.jpg",
+          path: "/public/photos/15377522_5081887_007.jpg",
         },
         {
           type: "attachment",
-          path: "./public/photos/Block Libre.jpg",
+          path: "/public/photos/Block Libre.jpg",
         },
       ] 
     },
   ];
   
   const ticketStatement = db.prepare(`
-    INSERT INTO tickets (style, priority, partner, description)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO tickets (style, priority, partner, description, status)
+    VALUES (?, ?, ?, ?, ?)
   `);
   
   const imageStatement = db.prepare(`
@@ -206,13 +222,14 @@ if (partnerCount === 0 && ticketCount === 0) {
   `);
   
   tickets.forEach((ticket, index) => {
-    const uploader = "Operator " + index;
-    const {style, priority, partner, description} = ticket;
-    const result = ticketStatement.run(style, priority, partner, description);
+    const status = index === 0 ? 'completed' : 'pending';
+    const { style, priority, partner, description } = ticket;
+    const result = ticketStatement.run(style, priority, partner, description, status);
     const ticketId = result.lastInsertRowid;
+    const uploader = "Operator " + index;
   
     ticket.images.forEach((image) => {
-      const {type, path} = image;
+      const { type, path } = image;
       imageStatement.run(ticketId, type, path, uploader);
     });
   });

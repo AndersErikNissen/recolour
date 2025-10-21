@@ -25,8 +25,8 @@ const links = [
 </script>
 
 <template>
-  <header class="inline-block sticky top-0 shrink-0">
-    <div class="rounded-3xl bg-brand-950 text-brand-50 text-sm p-3">
+  <header class="inline-block shrink-0">
+    <div class="rounded-3xl bg-brand-950 text-brand-50 text-sm p-3 sticky top-3">
       <div class="flex justify-center pt-6 pb-8 relative">
         <div class="w-24">
           <IconLogo />
@@ -36,7 +36,7 @@ const links = [
   
       <navigation class="block">
         <ul class="font-sans flex flex-col items-stretch">
-          <li class="grid" v-for="link in links">
+          <li class="grid" v-for="link in links" :key="link">
             <RouterLink activeClass="bg-brand-900" :to="link.path" class="p-3 px-5 rounded-full">
               {{ link.title }}
             </RouterLink>

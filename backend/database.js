@@ -9,7 +9,7 @@ db.prepare(`
     priority TEXT,
     partner TEXT,
     description TEXT,
-    status TEXT DEFAULT 'Pending',
+    status TEXT DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `).run();
@@ -46,7 +46,7 @@ db.prepare(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
-    role TEXT DEFAULT 'Operator'
+    role TEXT DEFAULT 'operator'
   )  
 `).run();
 

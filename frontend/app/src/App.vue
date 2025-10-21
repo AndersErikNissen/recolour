@@ -4,7 +4,7 @@ import GlobalHeader from './components/GlobalHeader.vue';
 </script>
 
 <template>
-  <div class="bg-brand-50 min-h-screen p-3 text-brand-950 flex gap-4">
+  <div class="bg-brand-50 min-h-screen p-3 text-brand-950 flex gap-4 font-sans relative">
     <GlobalHeader />
   
     <main class="relative grow">
@@ -19,7 +19,3 @@ import GlobalHeader from './components/GlobalHeader.vue';
     </main>
   </div>
 </template>
-
-<style scoped>
-
-</style>
