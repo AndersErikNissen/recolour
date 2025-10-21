@@ -1,7 +1,7 @@
 # recolour by Anders Erik Nissen
 A project created as part of a job application as a Fullstack developer
 
-# 🧩 Step-by-step for your client
+## 🧩 Start project
 
 ### 1️⃣ Install backend dependencies
 `
@@ -19,5 +19,4 @@ node seed.js
 node server.js
 `
 
-> That runs the Express server on http://localhost:3000
-> The Vue app can also be seen on http://localhost:3000
+> That runs the Express server on http://localhost:3000 _(The Vue app also runs on the same URL)_
